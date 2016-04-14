@@ -9,25 +9,147 @@
 <script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js" ></script>
 
 <script type="text/javascript">
-var destinationType;
-
-document.addEventListener("deviceready", onDeviceReady, false);
-
+    document.addEventListener("deviceready", onDeviceReady, false);
 function onDeviceReady() {
-     $("#btnCamara").tap(function pulsacion(){
+	$("#btnEnviar").tap(function env(){
+
+		var nom=$("#txtnombre").val();
+		var aps=$("#txtApp").val();
+		var nc=$("#txtNcontrol").val();
+		var Edad=$("#txtEdad").val();
+		
+		if(nom==""&& aps=="" && nc=="" && Edad==""){
+			alert("Introduzca los datos requeridos en todos los campos");
+		}else{
+			//alert("Se enviaran los datos: Nombre: "+nom+" Apellidos:"+aps+" Número de Control:"+nc+" Edad:"+Edad);
+			$.ajax({
+				type:"POST",
+				url:"http://danyhernandez.260mb.net/guardar.php",
+				data:"nomb="+nom+"&apps="+aps+"&numC="+nc+"&Ed="+Edad,
+				success: exitoso
+
+			});
+			
+			function exitoso(datos){
+				alert("Respuesta: "+datos);
+			}
+
+		}
+	});
+	
+$("#btnConsultar").tap(function consul(){
+	$.ajax({
+		type:"POST",
+		url:"http://danyhernandez.260mb.net/consultar.php",
+		data:"",
+		success: function(datos){
+//			alert("Respuesta: "+datos);
+			var reg=$.parseJSON(datos);
+			var contenedor=$("#datos");
+			contenedor.html('<table border="1" id="tb1"><th>Id</th><th>Nombre</th><th>Apellidos</th><th>Numero_Control</th><th>Edad</th>');
+			var fila=$("#tb1");
+			for(var i in reg){
+			fila.append('<tr><td>'+reg[i].Id+'</td><td>'+reg[i].Nombre+'</td><td>'+reg[i].Apellidos+'</td><td>'+reg[i].Numero_control+'</td><td>'+reg[i].Edad+'</td></tr>');
+			}
+			fila.append('</table>');
+		}	
+	});
+
+});
+
+$("#btnConsultar2").tap(function consul(){
+	$.ajax({
+		type:"POST",
+		url:"http://danyhernandez.260mb.net/consultar.php",
+		data:"",
+		success: function(datos){
+//			alert("Respuesta: "+datos);
+			var reg=$.parseJSON(datos);
+			var contenedor=$("#datos2");
+			contenedor.html('<table border="1" id="tb3"><th>Id</th><th>Nombre</th><th>Apellidos</th><th>Numero_Control</th><th>Edad</th>');
+			var fila=$("#tb3");
+			for(var i in reg){
+			fila.append('<tr><td>'+reg[i].Id+'</td><td>'+reg[i].Nombre+'</td><td>'+reg[i].Apellidos+'</td><td>'+reg[i].Numero_control+'</td><td>'+reg[i].Edad+'</td></tr>');
+
+			}
+			fila.append('</table>');
+		}	
+	});
+
+});
+
+$("#btnBuscar").tap(function busq(){
+	var nombre=$("#busNombre").val();
+	$.ajax({
+		type:"POST",
+                url:"http://danyhernandez.260mb.net/buscar.php",
+		data:"Nombre="+nombre,
+		success: function(datos){
+			var reg=$.parseJSON(datos);
+			var contenedor=$("#resBusqueda");
+			contenedor.html('<table border="1" id="tb2"><th>Id</th><th>Nombre</th><th>Apellidos</th><th>Numero_Control</th><th>Edad</th>');
+			var fila=$("#tb2");
+			for(var i in reg){
+			fila.append('<tr><td>'+reg[i].Id+'</td><td>'+reg[i].Nombre+'</td><td>'+reg[i].Apellidos+'</td><td>'+reg[i].Numero_control+'</td><td>'+reg[i].Edad+'</td></tr>');
+
+			}
+			fila.append('</table>');
+		}	
+	});
+});
+
+$("#btnBusqNC").tap(function busq(){
     
-    navigator.camera.getPicture(onSuccess, onFail, { quality: 50,
-    destinationType: Camera.DestinationType.FILE_URI });
+    var nc=$("#txtNC").val();
+	$.ajax({
+		type:"POST",
+                url:"http://danyhernandez.260mb.net/buscarNC.php",
+		data:"NC="+nc,
+		success: function(datos){
+			var reg=$.parseJSON(datos);
+			var contenedor=$("#resBusqNC");
+			contenedor.html('<input type="text" id="txtModId" disabled="true"');
+                        contenedor.append('<input type="text1" id="txtModNombre"><br>');
+                        contenedor.append('<input type="text" id="txtModApellidos"><br>');
+                        contenedor.append('<input type="text" id="txtModNumNC" disabled="true"><br>');
+                        contenedor.append('<input type="text" id="txtModEdad"><br>');
+                        
+                        var idMod=$("#txtModId");
+                        idMod.val(reg[0].Id);
 
-    function onSuccess(imageURI) {
-    var image = document.getElementById("myImage");//Seleccionar control con javascript
-    image.src = imageURI;
+                        var NombMod=$("#txtModNombre");
+                        NombMod.val(reg[0].Nombre);
+
+                        var ApsMod=$("#txtModApellidos");
+                        ApsMod.val(reg[0].Apellidos);
+
+                        var NcMod=$("#txtModNumNC");
+                        NcMod.val(reg[0].Numero_control);
+
+                        $("#txtModEdad").val(reg[0].Edad);
+			
+		
     }
+	});
+});
 
-    function onFail(message) {
-      alert('Failed because: ' + message);
-    }            
-   });
+$("#btnActualizar").tap(function modif() {
+    var nombre=$("#txtModNombre").val();
+    var apell=$("#txtModApellidos").val();
+    var nc=$("#txtModNumNC").val();
+    var ed=$("#txtModEdad").val();
+    
+    $.ajax({
+        type:"POST",
+        url:"http://danyhernandez.260mb.net/Actualizar.php",
+        data:"Nombre="+nombre+"&App="+apell+"&NC="+nc+"&Edad="+ed,
+        sucess:function(datos){
+            alert("respuesta: "+datos);
+    }
+    });
+});
+
+
 }
 </script>
 <style type="text/css">
@@ -48,18 +170,63 @@ font-weight:bold;
 <body>
 <div data-role="page" id="principal">
 	<div data-role="header">
-		<h1>Mi aplicación</h1>
+		<h1>Menú principal</h1>
 	</div>
-	<div data-role="content">
-		<input type="button" value="Acceder a camara" id="btnCamara" />
-		<img src="" id="myImage" />
+	<div data-role="content">				
+		<a href="#insertar" data-role="button" data-transition="flip">Registrar</a>
+		<a href="#consultar" data-role="button" data-transition="slideup">Consultar</a>
+		<a href="#modificar" data-role="button" data-transition="slideup">Modificar</a>
   	</div>
 	<div data-role="footer">
-     	<div  data-role="controlgroup" data-type="horizontal">
-			<a href="#segunda" class="ui-btn ui-icon-info-white ui-icon-left">Abrir</a>
-			<a href="#" class="ui-btn">Fecebook</a>
-			<a href="#" class="ui-btn">Twitter</a>
-		</div>
+     	   <p>Pie de la aplicación</p>
+	</div>
+</div>
+<div data-role="page" id="insertar">
+	<div data-role="header">
+		<h1>Mi aplicación</h1>
+	</div>
+	<div data-role="content">		
+		<input type="text" value="" placeholder="Escribe tu nombre" id="txtnombre" />
+		<input type="text" value="" placeholder="Apellidos" id="txtApp" />
+		<input type="text" placeholder="Número de control" id="txtNcontrol" />
+		<input type="text" placeholder="Edad" id="txtEdad" />
+		<input type="button" value="Registrar" id="btnEnviar" />
+		
+  	</div>
+	<div data-role="footer">
+     	   <p>Pie de la aplicación</p>
+	</div>
+</div>
+<div data-role="page" id="consultar">
+	<div data-role="header">
+		<h1>Consultar</h1>
+	</div>
+	<div data-role="content">				
+		<input type="button" value="Consultar todo" id="btnConsultar" />
+		<div id="datos"></div>	
+		<input type="text" placeholder="escribe un nombre" id="busNombre" />
+		<input type="button" value="Buscar" id="btnBuscar" />	
+		<div id="resBusqueda"></div>
+  	</div>
+	<div data-role="footer">
+     	   <p>Pie de la aplicación</p>
+	</div>
+</div>
+<div data-role="page" id="modificar">
+	<div data-role="header">
+		<h1>Modificar</h1>
+	</div>
+	<div data-role="content">				
+		<input type="button" value="Consultar todo" id="btnConsultar2" />
+		<div id="datos2"></div>	
+		<input type="text" placeholder="escribe el numero de Control" id="txtNC"/>
+		<input type="button" value="Buscar" id="btnBusqNC" />	
+		<div id="resBusqNC"></div>
+                <input type="button" id="btnActualizar" value="Actualizar"/>
+                <input type="button" id="btnEliminar" value="Eliminar"/>
+  	</div>
+	<div data-role="footer">
+     	   <p>Pie de la aplicación</p>
 	</div>
 </div>
 </body>
